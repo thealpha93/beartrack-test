@@ -25,6 +25,14 @@ describe('getCarryForwardAmount', () => {
     ]
     expect(getCarryForwardAmount(entries, today)).toBe(3)
   })
+
+  it('includes entry expiring exactly today', () => {
+    const today = new Date('2026-06-01')
+    const entries = [
+      { entry_type: 'CARRY_FORWARD', days: '3', expires_on: '2026-06-01' },
+    ]
+    expect(getCarryForwardAmount(entries, today)).toBe(3)
+  })
 })
 
 describe('getAdjustmentsTotal', () => {
