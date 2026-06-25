@@ -53,8 +53,8 @@ describe('applyProration', () => {
 
   it('prorates with CEIL rounding', () => {
     const policy = { prorate_on_join: true, proration_rounding: 'CEIL' }
-    // 20 days, join Oct 1 → ~3 months remaining → ceil(20 * 92/365) ≈ ceil(5.04) = 6
+    // Join Oct 1: 91 days remaining out of 364 FY days → ceil(20 × 91/364) = ceil(5.0) = 5
     const result = applyProration(20, policy, new Date('2026-10-01'), fy2026)
-    expect(result).toBeGreaterThanOrEqual(5)
+    expect(result).toBe(5)
   })
 })
