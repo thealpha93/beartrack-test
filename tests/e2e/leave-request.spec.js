@@ -1,21 +1,5 @@
 import { test, expect } from '@playwright/test'
-
-/**
- * Set a native date input value and trigger React's onChange event.
- * Playwright's page.fill() on date inputs may not fire React's synthetic
- * onChange, so we use evaluate to set the value and dispatch events.
- */
-async function fillDateInput(locator, dateStr) {
-  await locator.evaluate((el, value) => {
-    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-      window.HTMLInputElement.prototype,
-      'value'
-    ).set
-    nativeInputValueSetter.call(el, value)
-    el.dispatchEvent(new Event('input', { bubbles: true }))
-    el.dispatchEvent(new Event('change', { bubbles: true }))
-  }, dateStr)
-}
+import { fillDateInput } from './helpers.js'
 
 test.describe('Leave Request', () => {
   test.beforeEach(async ({ page }) => {

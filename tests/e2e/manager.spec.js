@@ -1,21 +1,5 @@
 import { test, expect } from '@playwright/test'
-
-/**
- * Set a native date input value and trigger React's onChange event.
- * Playwright's page.fill() on date inputs may not fire React's synthetic
- * onChange, so we use evaluate to set the value and dispatch events.
- */
-async function fillDateInput(locator, dateStr) {
-  await locator.evaluate((el, value) => {
-    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-      window.HTMLInputElement.prototype,
-      'value'
-    ).set
-    nativeInputValueSetter.call(el, value)
-    el.dispatchEvent(new Event('input', { bubbles: true }))
-    el.dispatchEvent(new Event('change', { bubbles: true }))
-  }, dateStr)
-}
+import { fillDateInput } from './helpers.js'
 
 test.describe('Manager Approvals', () => {
   test('manager can approve a pending request', async ({ page }) => {
@@ -60,7 +44,7 @@ test.describe('Manager Approvals', () => {
     // Approve all pending requests until none remain
     while (await pendingSection.getByRole('button', { name: 'Approve' }).count() > 0) {
       await pendingSection.getByRole('button', { name: 'Approve' }).first().click()
-      await page.waitForTimeout(500)
+      await page.waitForLoadState('networkidle')
     }
 
     await expect(page.getByText('No pending requests.')).toBeVisible()
