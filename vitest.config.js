@@ -5,6 +5,7 @@ export default defineConfig({
   plugins: [react()],
   test: {
     globals: true,
+    exclude: ['**/node_modules/**', '**/dist/**', 'tests/e2e/**'],
     environmentMatchGlobs: [
       ['tests/ui/**', 'jsdom'],
       ['**', 'node'],
