@@ -13,6 +13,7 @@ import { getLedgerEntries } from '@/lib/dal/ledger.js'
 import { getTenantById } from '@/lib/dal/tenants.js'
 import { computeAvailableBalance, validateRequest, countWorkingDays } from '@/lib/policy-engine/index.js'
 import { deriveFiscalYear } from '@/lib/fiscal-year.js'
+import { getToday } from '@/lib/utils/date.js'
 import { db } from '@/lib/db/index.js'
 import { leaveRequests } from '@/lib/db/schema.js'
 
@@ -38,7 +39,14 @@ export async function submitLeaveRequest({ leaveTypeId, startDate, endDate, dayT
       return { ok: false, errors: [{ message: 'Not found' }] }
     }
 
-    const today = new Date()
+    if ((dayType === 'HALF_AM' || dayType === 'HALF_PM') && !policy.allow_half_day) {
+      return { ok: false, errors: [{ message: 'Half-day requests are not permitted for this leave type' }] }
+    }
+    if (dayType === 'HOURLY' && !policy.allow_hourly) {
+      return { ok: false, errors: [{ message: 'Hourly requests are not permitted for this leave type' }] }
+    }
+
+    const today = getToday()
     const fiscalYear = deriveFiscalYear(tenant.fiscal_year_start_month, today)
     const holidays = await getPublicHolidays(tenantId, today.getFullYear())
 
@@ -68,17 +76,27 @@ export async function submitLeaveRequest({ leaveTypeId, startDate, endDate, dayT
     })
 
     // Get team peer requests for headcount check
-    const directReports = await getDirectReports(tenantId, employee.manager_id ?? employeeId)
-    const peerIds = directReports.map(r => r.id).filter(id => id !== employeeId)
-    const teamRequests = await getTeamRequestsForDateRange(tenantId, peerIds, startDate, endDate)
+    // Skip when requester is a top-level manager (no manager_id) — cohort would be wrong
+    let teamApprovedRequests = []
+    let teamSize = 0
+    let minHeadcount = 0
+
+    if (employee.manager_id) {
+      const directReports = await getDirectReports(tenantId, employee.manager_id)
+      const peerIds = directReports.map(r => r.id).filter(id => id !== employeeId)
+      const teamRequests = await getTeamRequestsForDateRange(tenantId, peerIds, startDate, endDate)
+      teamApprovedRequests = teamRequests
+      teamSize = peerIds.length + 1
+      minHeadcount = tenant.min_headcount_threshold
+    }
 
     const request = { working_days, start_date: startDate, end_date: endDate, day_type: dayType }
     const context = {
       today,
       blackoutPeriods: [],
-      teamApprovedRequests: teamRequests,
-      teamSize: peerIds.length + 1,
-      minHeadcount: tenant.min_headcount_threshold,
+      teamApprovedRequests,
+      teamSize,
+      minHeadcount,
     }
 
     const validations = validateRequest(request, balance, policy, context)

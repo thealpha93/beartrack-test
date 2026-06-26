@@ -37,7 +37,7 @@ export default async function DashboardPage({ params }) {
         getLedgerEntries(tenantId, employeeId, lt.id),
       ])
       const balance = computeAvailableBalance({
-        policy: lt, employee, fiscalYear, approvedRequests, ledgerEntries, today, publicHolidays: holidays,
+        policy: lt, employee, fiscalYear, approvedRequests, ledgerEntries, today,
       })
       return { leaveType: lt, balance }
     })

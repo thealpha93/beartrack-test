@@ -165,13 +165,24 @@ describe('requestPasswordReset', () => {
 
 describe('resetPassword', () => {
   it('updates password for valid token', async () => {
-    await requestPasswordReset(tenant.slug, 'active@test.com')
-    // token is logged to console — we fetch it from DB directly
-    const [record] = await db.select().from(passwordResetTokens)
-    // We can't get the raw token from hash, so test the error path instead
-    const result = await resetPassword('fake-token', 'newpass')
-    expect(result.ok).toBe(false)
-    expect(result.errors[0].message).toMatch(/invalid/i)
+    const resetResult = await requestPasswordReset(tenant.slug, 'active@test.com')
+    expect(resetResult.ok).toBe(true)
+    const { token } = resetResult.data
+
+    const result = await resetPassword(token, 'newpassword456')
+    expect(result.ok).toBe(true)
+
+    // Verify the new password works
+    const loginResult = await login(tenant.slug, 'active@test.com', 'newpassword456')
+    expect(loginResult.ok).toBe(true)
+
+    // Restore old password for other tests
+    const bcrypt = await import('bcryptjs')
+    const { db: testDb } = await import('@/lib/db/index.js')
+    const { users: usersTable } = await import('@/lib/db/schema.js')
+    const { eq } = await import('drizzle-orm')
+    const hash = await bcrypt.hash('password123', 12)
+    await testDb.update(usersTable).set({ password_hash: hash }).where(eq(usersTable.id, activeUser.id))
   })
 
   it('returns error for already-used token', async () => {

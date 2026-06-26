@@ -3,9 +3,9 @@ import { getActiveUsersByTenant } from '@/lib/dal/employees.js'
 import { getCarryForwardLeaveTypes } from '@/lib/dal/leave-types.js'
 import { getApprovedRequestsForFY } from '@/lib/dal/leave-requests.js'
 import { getLedgerEntries, insertLedgerEntry } from '@/lib/dal/ledger.js'
-import { getEmployee } from '@/lib/dal/employees.js'
 import { computeAvailableBalance } from '@/lib/policy-engine/index.js'
 import { deriveFiscalYear } from '@/lib/fiscal-year.js'
+import { getToday } from '@/lib/utils/date.js'
 import { toZonedTime, format } from 'date-fns-tz'
 
 /**
@@ -33,10 +33,10 @@ export async function POST(request) {
 
     if (todayStr !== fyStartStr) continue
 
-    const today = new Date()
+    const today = getToday()
     const expiringFY = deriveFiscalYear(
       tenant.fiscal_year_start_month,
-      new Date(today.getFullYear(), today.getMonth() - 1, 15),
+      new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - 1, 15)),
     )
     const newFY = deriveFiscalYear(tenant.fiscal_year_start_month, today)
 
@@ -52,12 +52,9 @@ export async function POST(request) {
           getLedgerEntries(tenant.id, user.id, lt.id),
         ])
 
-        const employee = await getEmployee(tenant.id, user.id)
-        if (!employee) continue
-
         const closingBalance = computeAvailableBalance({
           policy: lt,
-          employee: toEmployeeModel(employee),
+          employee: toEmployeeModel(user),
           fiscalYear: expiringFY,
           approvedRequests,
           ledgerEntries,
