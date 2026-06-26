@@ -13,14 +13,22 @@ export function ApprovalActions({ requestId }) {
 
   async function handleApprove() {
     setLoading(true)
-    await approveRequest(requestId)
-    router.refresh()
+    try {
+      await approveRequest(requestId)
+      router.refresh()
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function handleReject() {
     setLoading(true)
-    await rejectRequest(requestId, note)
-    router.refresh()
+    try {
+      await rejectRequest(requestId, note)
+      router.refresh()
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (rejecting) {
