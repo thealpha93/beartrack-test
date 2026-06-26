@@ -4,8 +4,9 @@ import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 import { getSession } from '@/lib/session'
 import { db } from '@/lib/db/index.js'
-import { users, invites, passwordResetTokens, tenants } from '@/lib/db/schema.js'
+import { users, invites, passwordResetTokens } from '@/lib/db/schema.js'
 import { getUserByEmail } from '@/lib/dal/employees.js'
+import { getTenantBySlug } from '@/lib/dal/tenants.js'
 import { eq, and } from 'drizzle-orm'
 
 function hashToken(token) {
@@ -14,7 +15,7 @@ function hashToken(token) {
 
 export async function login(tenantSlug, email, password) {
   try {
-    const [tenant] = await db.select().from(tenants).where(eq(tenants.slug, tenantSlug))
+    const tenant = await getTenantBySlug(tenantSlug)
     if (!tenant) return { ok: false, errors: [{ message: 'Invalid credentials' }] }
 
     const user = await getUserByEmail(tenant.id, email)
@@ -106,7 +107,7 @@ export async function acceptInvite(token, name, password) {
 
 export async function requestPasswordReset(tenantSlug, email) {
   try {
-    const [tenant] = await db.select().from(tenants).where(eq(tenants.slug, tenantSlug))
+    const tenant = await getTenantBySlug(tenantSlug)
     if (!tenant) return { ok: true } // don't leak tenant existence
 
     const user = await getUserByEmail(tenant.id, email)
