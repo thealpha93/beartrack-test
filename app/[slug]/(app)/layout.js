@@ -1,8 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/session'
-import { db } from '@/lib/db/index.js'
-import { tenants, users } from '@/lib/db/schema.js'
-import { eq, and } from 'drizzle-orm'
+import { getTenantBySlug } from '@/lib/dal/tenants.js'
+import { getEmployee } from '@/lib/dal/employees.js'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { logout } from '@/app/actions/auth'
@@ -15,10 +14,13 @@ export default async function AppLayout({ children, params }) {
     redirect(`/${slug}/login`)
   }
 
-  const [[tenant], [user]] = await Promise.all([
-    db.select().from(tenants).where(eq(tenants.slug, slug)),
-    db.select().from(users).where(and(eq(users.id, session.userId), eq(users.is_active, true))),
-  ])
+  const tenant = await getTenantBySlug(slug)
+
+  if (!tenant) {
+    redirect(`/${slug}/login`)
+  }
+
+  const user = await getEmployee(tenant.id, session.userId)
 
   if (!tenant || !user) {
     redirect(`/${slug}/login`)
