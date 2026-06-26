@@ -10,11 +10,11 @@ import {
   getApprovedRequestsForFY,
 } from '@/lib/dal/leave-requests.js'
 import { getLedgerEntries } from '@/lib/dal/ledger.js'
+import { getTenantById } from '@/lib/dal/tenants.js'
 import { computeAvailableBalance, validateRequest, countWorkingDays } from '@/lib/policy-engine/index.js'
 import { deriveFiscalYear } from '@/lib/fiscal-year.js'
 import { db } from '@/lib/db/index.js'
-import { tenants, leaveRequests } from '@/lib/db/schema.js'
-import { eq } from 'drizzle-orm'
+import { leaveRequests } from '@/lib/db/schema.js'
 
 /**
  * Adapt a DB employee row (snake_case) to the shape expected by the policy engine (camelCase joinDate).
@@ -28,8 +28,8 @@ export async function submitLeaveRequest({ leaveTypeId, startDate, endDate, dayT
     const session = await getSession()
     const { userId: employeeId, tenantId } = session
 
-    const [[tenant], employee, policy] = await Promise.all([
-      db.select().from(tenants).where(eq(tenants.id, tenantId)),
+    const [tenant, employee, policy] = await Promise.all([
+      getTenantById(tenantId),
       getEmployee(tenantId, employeeId),
       getLeaveType(tenantId, leaveTypeId),
     ])
