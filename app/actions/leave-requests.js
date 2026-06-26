@@ -152,7 +152,7 @@ export async function approveRequest(requestId, reviewNote = '') {
       review_note: reviewNote,
     })
 
-    return { ok: true }
+    return { ok: true, data: null }
   } catch {
     return { ok: false, errors: [{ message: 'Something went wrong' }] }
   }
@@ -182,7 +182,7 @@ export async function rejectRequest(requestId, reviewNote = '') {
       review_note: reviewNote,
     })
 
-    return { ok: true }
+    return { ok: true, data: null }
   } catch {
     return { ok: false, errors: [{ message: 'Something went wrong' }] }
   }
@@ -199,7 +199,7 @@ export async function cancelRequest(requestId) {
     if (req.status !== 'pending') return { ok: false, errors: [{ message: 'Only pending requests can be cancelled' }] }
 
     await updateRequestStatus(tenantId, requestId, 'cancelled')
-    return { ok: true }
+    return { ok: true, data: null }
   } catch {
     return { ok: false, errors: [{ message: 'Something went wrong' }] }
   }
