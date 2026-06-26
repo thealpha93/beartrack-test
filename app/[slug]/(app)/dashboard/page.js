@@ -6,9 +6,7 @@ import { getLedgerEntries } from '@/lib/dal/ledger.js'
 import { getPublicHolidays } from '@/lib/dal/public-holidays.js'
 import { computeAvailableBalance } from '@/lib/policy-engine/index.js'
 import { deriveFiscalYear } from '@/lib/fiscal-year.js'
-import { db } from '@/lib/db/index.js'
-import { tenants } from '@/lib/db/schema.js'
-import { eq } from 'drizzle-orm'
+import { getTenantById } from '@/lib/dal/tenants.js'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -23,8 +21,8 @@ export default async function DashboardPage({ params }) {
   const employeeId = session.userId
   const today = new Date()
 
-  const [[tenant], employee, leaveTypesList, allRequests] = await Promise.all([
-    db.select().from(tenants).where(eq(tenants.id, tenantId)),
+  const [tenant, employee, leaveTypesList, allRequests] = await Promise.all([
+    getTenantById(tenantId),
     getEmployee(tenantId, employeeId),
     getActiveLeaveTypes(tenantId),
     getRequestsByEmployee(tenantId, employeeId),
