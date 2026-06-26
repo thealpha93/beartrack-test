@@ -8,7 +8,6 @@ import { computeAvailableBalance } from '@/lib/policy-engine/index.js'
 import { deriveFiscalYear } from '@/lib/fiscal-year.js'
 import { getTenantById } from '@/lib/dal/tenants.js'
 import Link from 'next/link'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
@@ -38,11 +37,13 @@ export default async function DashboardPage({ params }) {
         getLedgerEntries(tenantId, employeeId, lt.id),
       ])
       const balance = computeAvailableBalance({
-        policy: lt, employee, fiscalYear, approvedRequests, ledgerEntries, today,
+        policy: lt, employee, fiscalYear, approvedRequests, ledgerEntries, today, publicHolidays: holidays,
       })
       return { leaveType: lt, balance }
     })
   )
+
+  const leaveTypeMap = new Map(leaveTypesList.map(lt => [lt.id, lt.name]))
 
   const statusColor = {
     pending: 'bg-yellow-100 text-yellow-800',
@@ -102,7 +103,7 @@ export default async function DashboardPage({ params }) {
               <tbody className="divide-y">
                 {allRequests.map(req => (
                   <tr key={req.id}>
-                    <td className="px-4 py-3">{req.leave_type_id}</td>
+                    <td className="px-4 py-3">{leaveTypeMap.get(req.leave_type_id) ?? req.leave_type_id}</td>
                     <td className="px-4 py-3">{req.start_date} – {req.end_date}</td>
                     <td className="px-4 py-3">{req.working_days}</td>
                     <td className="px-4 py-3">
