@@ -27,6 +27,7 @@ export default async function AppLayout({ children, params }) {
   }
 
   const isManager = user.role === 'manager' || user.role === 'admin'
+  const isAdmin = user.role === 'admin'
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -39,6 +40,11 @@ export default async function AppLayout({ children, params }) {
           {isManager && (
             <Link href={`/${slug}/manager`} className="text-sm text-gray-600 hover:text-gray-900">
               Team
+            </Link>
+          )}
+          {isAdmin && (
+            <Link href={`/${slug}/admin`} className="text-sm text-gray-600 hover:text-gray-900">
+              Admin
             </Link>
           )}
         </div>
