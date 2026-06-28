@@ -42,9 +42,12 @@ test.describe('Manager Approvals', () => {
     await expect(pendingSection.getByText('Bob Employee').first()).toBeVisible()
 
     // Approve all pending requests until none remain
-    while (await pendingSection.getByRole('button', { name: 'Approve' }).count() > 0) {
-      await pendingSection.getByRole('button', { name: 'Approve' }).first().click()
-      await page.waitForLoadState('networkidle')
+    while (true) {
+      const buttons = pendingSection.getByRole('button', { name: 'Approve' })
+      const count = await buttons.count()
+      if (count === 0) break
+      await buttons.first().click()
+      await expect(buttons).toHaveCount(count - 1)
     }
 
     await expect(page.getByText('No pending requests.')).toBeVisible()
