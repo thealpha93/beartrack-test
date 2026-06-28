@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { submitLeaveRequest } from '@/app/actions/leave-requests'
 import { getEmployeeBalance } from '@/app/actions/balances'
@@ -20,7 +20,7 @@ function countWorkingDaysClient(start, end, workingWeek, holidays) {
   return count
 }
 
-export function NewRequestForm({ slug, leaveTypes, holidays, workingWeek, employeeId }) {
+export function NewRequestForm({ slug, leaveTypes, holidays, workingWeek, employeeId, existingRequests = [] }) {
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [leaveTypeId, setLeaveTypeId] = useState('')
@@ -34,8 +34,16 @@ export function NewRequestForm({ slug, leaveTypes, holidays, workingWeek, employ
   const [errors, setErrors] = useState([])
   const [warnings, setWarnings] = useState([])
   const [submitting, setSubmitting] = useState(false)
+  const [overlapWarning, setOverlapWarning] = useState(false)
+  const isSubmitting = useRef(false)
 
   const selectedType = leaveTypes.find(lt => lt.id === leaveTypeId)
+
+  function checkOverlap(sd, ed) {
+    if (!sd || !ed) { setOverlapWarning(false); return }
+    const overlaps = existingRequests.some(r => r.start_date <= ed && r.end_date >= sd)
+    setOverlapWarning(overlaps)
+  }
 
   async function fetchBalance(ltId, sd, ed) {
     if (!ltId || !sd || !ed) return
@@ -48,13 +56,19 @@ export function NewRequestForm({ slug, leaveTypes, holidays, workingWeek, employ
   }
 
   async function handleSubmit() {
+    if (isSubmitting.current) return
+    isSubmitting.current = true
     setSubmitting(true)
     setErrors([])
-    const result = await submitLeaveRequest({ leaveTypeId, startDate, endDate, dayType, hours: hours || null, note })
-    setSubmitting(false)
-    if (!result.ok) { setErrors(result.errors); return }
-    setWarnings(result.data.warnings ?? [])
-    router.push(`/${slug}/dashboard`)
+    try {
+      const result = await submitLeaveRequest({ leaveTypeId, startDate, endDate, dayType, hours: hours || null, note })
+      if (!result.ok) { setErrors(result.errors); return }
+      setWarnings(result.data.warnings ?? [])
+      router.push(`/${slug}/dashboard`)
+    } finally {
+      isSubmitting.current = false
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -95,7 +109,7 @@ export function NewRequestForm({ slug, leaveTypes, holidays, workingWeek, employ
                 <input
                   type="date"
                   value={startDate}
-                  onChange={e => { setStartDate(e.target.value); fetchBalance(leaveTypeId, e.target.value, endDate) }}
+                  onChange={e => { setStartDate(e.target.value); fetchBalance(leaveTypeId, e.target.value, endDate); checkOverlap(e.target.value, endDate) }}
                   className="w-full mt-1 border rounded-md px-3 py-2 text-sm"
                 />
               </div>
@@ -105,12 +119,17 @@ export function NewRequestForm({ slug, leaveTypes, holidays, workingWeek, employ
                   type="date"
                   value={endDate}
                   min={startDate}
-                  onChange={e => { setEndDate(e.target.value); fetchBalance(leaveTypeId, startDate, e.target.value) }}
+                  onChange={e => { setEndDate(e.target.value); fetchBalance(leaveTypeId, startDate, e.target.value); checkOverlap(startDate, e.target.value) }}
                   className="w-full mt-1 border rounded-md px-3 py-2 text-sm"
                 />
               </div>
               {workingDays > 0 && (
                 <p className="text-sm text-gray-600">{workingDays} working day{workingDays !== 1 ? 's' : ''}</p>
+              )}
+              {overlapWarning && (
+                <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2">
+                  These dates overlap with an existing pending or approved request.
+                </p>
               )}
             </div>
           )}

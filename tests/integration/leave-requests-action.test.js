@@ -1,10 +1,10 @@
-process.env.DATABASE_URL = process.env.DATABASE_URL_TEST
 
 import { vi } from 'vitest'
 vi.mock('@/lib/session', () => ({ getSession: vi.fn() }))
 import { getSession } from '@/lib/session'
 
 import { db } from '@/lib/db/index.js'
+import { eq } from 'drizzle-orm'
 import { tenants, users, leaveTypes, leaveRequests } from '@/lib/db/schema.js'
 import {
   submitLeaveRequest, approveRequest, rejectRequest, cancelRequest,
@@ -33,7 +33,7 @@ beforeAll(async () => {
   ;[annualLeave] = await db.insert(leaveTypes).values({
     tenant_id: tenant.id, name: 'Annual', code: 'ANNUAL',
     annual_entitlement_days: '20', role_overrides: {}, requires_approval: true,
-    allow_negative_balance: false,
+    allow_negative_balance: false, allow_half_day: true,
   }).returning()
   ;[autoApprovedLeave] = await db.insert(leaveTypes).values({
     tenant_id: tenant.id, name: 'Bereavement', code: 'BEREAVEMENT',
@@ -77,7 +77,7 @@ describe('submitLeaveRequest', () => {
     expect(result.ok).toBe(true)
     expect(result.data.requestId).toBeDefined()
     const req = await db.select().from(leaveRequests)
-      .where((await import('drizzle-orm')).eq(leaveRequests.id, result.data.requestId))
+      .where(eq(leaveRequests.id, result.data.requestId))
     expect(req[0].status).toBe('pending')
   })
 
@@ -88,7 +88,7 @@ describe('submitLeaveRequest', () => {
     })
     expect(result.ok).toBe(true)
     const req = await db.select().from(leaveRequests)
-      .where((await import('drizzle-orm')).eq(leaveRequests.id, result.data.requestId))
+      .where(eq(leaveRequests.id, result.data.requestId))
     expect(req[0].status).toBe('approved')
   })
 
@@ -108,7 +108,7 @@ describe('submitLeaveRequest', () => {
     })
     expect(result.ok).toBe(true)
     const req = await db.select().from(leaveRequests)
-      .where((await import('drizzle-orm')).eq(leaveRequests.id, result.data.requestId))
+      .where(eq(leaveRequests.id, result.data.requestId))
     expect(Number(req[0].working_days)).toBe(0.5)
   })
 })
@@ -127,13 +127,20 @@ describe('approveRequest', () => {
     pendingRequestId = result.data.requestId
   })
 
+  afterEach(async () => {
+    if (pendingRequestId) {
+      await db.delete(leaveRequests).where(eq(leaveRequests.id, pendingRequestId))
+      pendingRequestId = null
+    }
+  })
+
   it('allows manager to approve own direct report request', async () => {
     mockSession.userId = manager.id
     mockSession.role = 'manager'
     const result = await approveRequest(pendingRequestId, 'Approved!')
     expect(result.ok).toBe(true)
     const [req] = await db.select().from(leaveRequests)
-      .where((await import('drizzle-orm')).eq(leaveRequests.id, pendingRequestId))
+      .where(eq(leaveRequests.id, pendingRequestId))
     expect(req.status).toBe('approved')
     expect(req.review_note).toBe('Approved!')
   })
@@ -173,7 +180,7 @@ describe('rejectRequest', () => {
     const result = await rejectRequest(data.requestId, 'Too busy')
     expect(result.ok).toBe(true)
     const [req] = await db.select().from(leaveRequests)
-      .where((await import('drizzle-orm')).eq(leaveRequests.id, data.requestId))
+      .where(eq(leaveRequests.id, data.requestId))
     expect(req.status).toBe('rejected')
     expect(req.review_note).toBe('Too busy')
   })
@@ -198,7 +205,7 @@ describe('cancelRequest', () => {
     const result = await cancelRequest(data.requestId)
     expect(result.ok).toBe(true)
     const [req] = await db.select().from(leaveRequests)
-      .where((await import('drizzle-orm')).eq(leaveRequests.id, data.requestId))
+      .where(eq(leaveRequests.id, data.requestId))
     expect(req.status).toBe('cancelled')
   })
 

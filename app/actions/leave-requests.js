@@ -1,13 +1,13 @@
 'use server'
 
 import { getSession } from '@/lib/session'
-import { getEmployee, getDirectReports } from '@/lib/dal/employees.js'
+import { getEmployee, getDirectReports, toEmployeeModel } from '@/lib/dal/employees.js'
 import { getLeaveType } from '@/lib/dal/leave-types.js'
 import { getPublicHolidays } from '@/lib/dal/public-holidays.js'
 import {
   insertRequest, updateRequestStatus, getRequestById,
   getTeamRequestsForDateRange, getRequestsByEmployee,
-  getApprovedRequestsForFY,
+  getApprovedRequestsForFY, getOverlappingRequests,
 } from '@/lib/dal/leave-requests.js'
 import { getLedgerEntries } from '@/lib/dal/ledger.js'
 import { getTenantById } from '@/lib/dal/tenants.js'
@@ -16,13 +16,6 @@ import { deriveFiscalYear } from '@/lib/fiscal-year.js'
 import { getToday } from '@/lib/utils/date.js'
 import { db } from '@/lib/db/index.js'
 import { leaveRequests } from '@/lib/db/schema.js'
-
-/**
- * Adapt a DB employee row (snake_case) to the shape expected by the policy engine (camelCase joinDate).
- */
-function toEmployeeModel(dbEmployee) {
-  return { ...dbEmployee, joinDate: dbEmployee.join_date }
-}
 
 export async function submitLeaveRequest({ leaveTypeId, startDate, endDate, dayType, hours, note }) {
   try {
@@ -44,6 +37,11 @@ export async function submitLeaveRequest({ leaveTypeId, startDate, endDate, dayT
     }
     if (dayType === 'HOURLY' && !policy.allow_hourly) {
       return { ok: false, errors: [{ message: 'Hourly requests are not permitted for this leave type' }] }
+    }
+
+    const overlapping = await getOverlappingRequests(tenantId, employeeId, startDate, endDate)
+    if (overlapping.length > 0) {
+      return { ok: false, errors: [{ message: 'You already have leave covering these dates' }] }
     }
 
     const today = getToday()
