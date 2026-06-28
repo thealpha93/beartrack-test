@@ -1,6 +1,6 @@
 import { getSession } from '@/lib/session'
 import { getActiveLeaveTypes } from '@/lib/dal/leave-types.js'
-import { getEmployee } from '@/lib/dal/employees.js'
+import { getEmployee, toEmployeeModel } from '@/lib/dal/employees.js'
 import { getApprovedRequestsForFY, getRequestsByEmployee } from '@/lib/dal/leave-requests.js'
 import { getLedgerEntries } from '@/lib/dal/ledger.js'
 import { getPublicHolidays } from '@/lib/dal/public-holidays.js'
@@ -8,7 +8,7 @@ import { computeAvailableBalance } from '@/lib/policy-engine/index.js'
 import { deriveFiscalYear } from '@/lib/fiscal-year.js'
 import { getTenantById } from '@/lib/dal/tenants.js'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { CancelRequestButton } from './CancelRequestButton'
@@ -37,7 +37,7 @@ export default async function DashboardPage({ params }) {
         getLedgerEntries(tenantId, employeeId, lt.id),
       ])
       const balance = computeAvailableBalance({
-        policy: lt, employee, fiscalYear, approvedRequests, ledgerEntries, today,
+        policy: lt, employee: toEmployeeModel(employee), fiscalYear, approvedRequests, ledgerEntries, today,
       })
       return { leaveType: lt, balance }
     })
@@ -56,9 +56,7 @@ export default async function DashboardPage({ params }) {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">My Leave</h1>
-        <Button asChild>
-          <Link href={`/${slug}/requests/new`}>New Request</Link>
-        </Button>
+        <Link href={`/${slug}/requests/new`} className={buttonVariants()}>New Request</Link>
       </div>
 
       {/* Balance cards */}

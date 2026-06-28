@@ -1,5 +1,5 @@
 import { getAllTenants } from '@/lib/dal/tenants.js'
-import { getActiveUsersByTenant } from '@/lib/dal/employees.js'
+import { getActiveUsersByTenant, toEmployeeModel } from '@/lib/dal/employees.js'
 import { getCarryForwardLeaveTypes } from '@/lib/dal/leave-types.js'
 import { getApprovedRequestsForFY } from '@/lib/dal/leave-requests.js'
 import { getLedgerEntries, insertLedgerEntry } from '@/lib/dal/ledger.js'
@@ -7,14 +7,6 @@ import { computeAvailableBalance } from '@/lib/policy-engine/index.js'
 import { deriveFiscalYear } from '@/lib/fiscal-year.js'
 import { getToday } from '@/lib/utils/date.js'
 import { toZonedTime, format } from 'date-fns-tz'
-
-/**
- * Adapt a DB employee row (snake_case) to the shape expected by the policy engine (camelCase joinDate).
- * @param {object} dbEmployee
- */
-function toEmployeeModel(dbEmployee) {
-  return { ...dbEmployee, joinDate: dbEmployee.join_date }
-}
 
 export async function POST(request) {
   const authHeader = request.headers.get('authorization')

@@ -1,7 +1,7 @@
 'use server'
 
 import { getSession } from '@/lib/session'
-import { getEmployee, getDirectReports } from '@/lib/dal/employees.js'
+import { getEmployee, getDirectReports, toEmployeeModel } from '@/lib/dal/employees.js'
 import { getLeaveType, getActiveLeaveTypes } from '@/lib/dal/leave-types.js'
 import { getApprovedRequestsForFY } from '@/lib/dal/leave-requests.js'
 import { getLedgerEntries } from '@/lib/dal/ledger.js'
@@ -9,13 +9,6 @@ import { getTenantById } from '@/lib/dal/tenants.js'
 import { computeAvailableBalance } from '@/lib/policy-engine/index.js'
 import { deriveFiscalYear } from '@/lib/fiscal-year.js'
 import { getToday } from '@/lib/utils/date.js'
-
-/**
- * Adapt a DB employee row (snake_case) to the shape expected by the policy engine (camelCase joinDate).
- */
-function toEmployeeModel(dbEmployee) {
-  return { ...dbEmployee, joinDate: dbEmployee.join_date }
-}
 
 export async function getEmployeeBalance(employeeId, leaveTypeId, date = getToday()) {
   try {

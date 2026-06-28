@@ -1,5 +1,5 @@
 import { getSession } from '@/lib/session'
-import { getDirectReports, getEmployee } from '@/lib/dal/employees.js'
+import { getDirectReports, getActiveUsersByTenant, getEmployee } from '@/lib/dal/employees.js'
 import { getPendingRequestsForManager, getTeamRequestsForDateRange } from '@/lib/dal/leave-requests.js'
 import { getLeaveType } from '@/lib/dal/leave-types.js'
 import { getTeamBalances } from '@/app/actions/balances'
@@ -18,7 +18,9 @@ export default async function ManagerPage({ params }) {
   const tenantId = session.tenantId
   const managerId = session.userId
 
-  const directReports = await getDirectReports(tenantId, managerId)
+  const directReports = session.role === 'admin'
+    ? (await getActiveUsersByTenant(tenantId)).filter(u => u.id !== managerId)
+    : await getDirectReports(tenantId, managerId)
   const reportIds = directReports.map(r => r.id)
 
   const [pendingRequests, teamBalancesResult] = await Promise.all([
