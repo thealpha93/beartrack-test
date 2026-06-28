@@ -1,4 +1,3 @@
-process.env.DATABASE_URL = process.env.DATABASE_URL_TEST
 
 import { db } from '@/lib/db/index.js'
 import { tenants, users, leaveTypes, leaveRequests, leaveLedger, publicHolidays } from '@/lib/db/schema.js'

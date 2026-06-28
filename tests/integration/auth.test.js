@@ -1,4 +1,3 @@
-process.env.DATABASE_URL = process.env.DATABASE_URL_TEST
 
 import { vi } from 'vitest'
 

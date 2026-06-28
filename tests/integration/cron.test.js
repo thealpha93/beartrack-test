@@ -1,4 +1,3 @@
-process.env.DATABASE_URL = process.env.DATABASE_URL_TEST
 process.env.CRON_SECRET = 'test-cron-secret'
 
 import { db } from '@/lib/db/index.js'
