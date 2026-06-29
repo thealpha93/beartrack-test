@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import { useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { sendInvite } from '@/app/actions/auth'
 
 export function InviteForm() {
+  const { slug } = useParams()
   const [email, setEmail] = useState('')
   const [role, setRole] = useState('employee')
   const [errors, setErrors] = useState([])
@@ -35,7 +37,7 @@ export function InviteForm() {
         <div className="text-sm bg-green-50 border border-green-200 rounded px-3 py-2 space-y-1">
           <p className="font-medium text-green-800">Invite created.</p>
           <p className="text-green-700 break-all font-mono">
-            {typeof window !== 'undefined' ? window.location.origin : ''}/invite/{inviteToken}
+            {typeof window !== 'undefined' ? window.location.origin : ''}/{slug}/invite/{inviteToken}
           </p>
         </div>
       )}
