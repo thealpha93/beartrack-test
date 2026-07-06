@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { submitLeaveRequest } from '@/app/actions/leave-requests'
 import { getEmployeeBalance } from '@/app/actions/balances'
+import { formatDays } from '@/lib/utils/format.js'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 
@@ -19,6 +20,8 @@ function countWorkingDaysClient(start, end, workingWeek, holidays) {
   }
   return count
 }
+
+const STEPS = ['Leave type', 'Dates', 'Day type', 'Note', 'Review']
 
 export function NewRequestForm({ slug, leaveTypes, holidays, workingWeek, employeeId, existingRequests = [] }) {
   const router = useRouter()
@@ -77,9 +80,17 @@ export function NewRequestForm({ slug, leaveTypes, holidays, workingWeek, employ
 
       {/* Step indicators */}
       <div className="flex gap-2">
-        {[1,2,3,4,5].map(s => (
-          <div key={s} className={`h-1.5 flex-1 rounded-full ${s <= step ? 'bg-blue-500' : 'bg-gray-200'}`} />
-        ))}
+        {STEPS.map((label, i) => {
+          const s = i + 1
+          return (
+            <div key={s} className="flex-1 flex flex-col items-center gap-1">
+              <div className={`h-1.5 w-full rounded-full ${s <= step ? 'bg-blue-500' : 'bg-gray-200'}`} />
+              <span className={`text-xs ${s === step ? 'text-gray-900 font-medium' : 'text-gray-400'}`}>
+                {label}
+              </span>
+            </div>
+          )
+        })}
       </div>
 
       <Card>
@@ -179,8 +190,8 @@ export function NewRequestForm({ slug, leaveTypes, holidays, workingWeek, employ
                 <p><span className="text-gray-500">Working days:</span> {workingDays}</p>
                 {balance && (
                   <>
-                    <p><span className="text-gray-500">Current balance:</span> {balance.available.toFixed(1)} days</p>
-                    <p><span className="text-gray-500">After request:</span> {(balance.available - workingDays).toFixed(1)} days</p>
+                    <p><span className="text-gray-500">Current balance:</span> {formatDays(balance.available)} days</p>
+                    <p><span className="text-gray-500">After request:</span> {formatDays(balance.available - workingDays)} days</p>
                   </>
                 )}
               </div>
