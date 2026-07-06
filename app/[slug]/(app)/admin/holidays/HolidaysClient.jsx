@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
+import { EmptyState } from '@/components/ui/empty-state'
 import { addPublicHolidayAction, deletePublicHolidayAction } from '@/app/actions/admin'
 
 export function HolidaysClient({ slug, year, holidays }) {
@@ -62,46 +64,38 @@ export function HolidaysClient({ slug, year, holidays }) {
         </div>
       </div>
 
-      <div className="rounded-md border bg-white overflow-hidden">
-        {holidays.length === 0 ? (
-          <p className="px-4 py-8 text-center text-gray-500 text-sm">No holidays for {year}.</p>
-        ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium text-gray-600">Date</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-600">Name</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {holidays.map(h => (
-                <tr key={h.id}>
-                  <td className="px-4 py-3">{h.date}</td>
-                  <td className="px-4 py-3">{h.name}</td>
-                  <td className="px-4 py-3 text-right">
-                    {confirmDelete === h.id ? (
-                      <span className="inline-flex items-center gap-2">
-                        <span className="text-sm text-gray-600">Delete?</span>
-                        <Button size="sm" variant="destructive" onClick={() => handleDelete(h.id)} disabled={saving}>
-                          Yes
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => setConfirmDelete(null)} disabled={saving}>
-                          Cancel
-                        </Button>
-                      </span>
-                    ) : (
-                      <Button size="sm" variant="outline" onClick={() => setConfirmDelete(h.id)}>
-                        Delete
-                      </Button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+      {holidays.length === 0 ? (
+        <EmptyState label={`No holidays for ${year}.`} />
+      ) : (
+        <Table className="rounded-md border bg-white">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Date</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {holidays.map(h => (
+              <TableRow key={h.id}>
+                <TableCell>{h.date}</TableCell>
+                <TableCell>{h.name}</TableCell>
+                <TableCell className="text-right">
+                  {confirmDelete === h.id ? (
+                    <span className="inline-flex items-center gap-2">
+                      <span className="text-sm text-gray-600">Delete?</span>
+                      <Button size="sm" variant="destructive" onClick={() => handleDelete(h.id)} disabled={saving}>Yes</Button>
+                      <Button size="sm" variant="outline" onClick={() => setConfirmDelete(null)} disabled={saving}>Cancel</Button>
+                    </span>
+                  ) : (
+                    <Button size="sm" variant="outline" onClick={() => setConfirmDelete(h.id)}>Delete</Button>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
 
       <div className="rounded-md border bg-white p-4">
         <h2 className="text-sm font-medium text-gray-700 mb-3">Add holiday</h2>
