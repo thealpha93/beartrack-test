@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { addPublicHolidayAction, deletePublicHolidayAction } from '@/app/actions/admin'
 
 export function HolidaysClient({ slug, year, holidays }) {
@@ -107,23 +108,21 @@ export function HolidaysClient({ slug, year, holidays }) {
         <form onSubmit={handleAdd} className="flex items-end gap-3">
           <div>
             <label className="block text-xs text-gray-500 mb-1">Date</label>
-            <input
+            <Input
               type="date"
               required
               value={newDate}
               onChange={e => setNewDate(e.target.value)}
-              className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div className="flex-1">
             <label className="block text-xs text-gray-500 mb-1">Name</label>
-            <input
+            <Input
               type="text"
               required
               placeholder="Holiday name"
               value={newName}
               onChange={e => setNewName(e.target.value)}
-              className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <Button type="submit" disabled={saving}>Add</Button>

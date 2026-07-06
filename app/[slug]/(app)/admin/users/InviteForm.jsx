@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { sendInvite } from '@/app/actions/auth'
 
 export function InviteForm() {
@@ -29,8 +30,6 @@ export function InviteForm() {
     }
   }
 
-  const inputClass = 'w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
-
   return (
     <div className="max-w-lg space-y-6">
       {inviteToken && (
@@ -44,11 +43,11 @@ export function InviteForm() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-          <input type="email" required value={email} onChange={e => setEmail(e.target.value)} className={inputClass} />
+          <Input type="email" required value={email} onChange={e => setEmail(e.target.value)} />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-          <select value={role} onChange={e => setRole(e.target.value)} className={inputClass}>
+          <select value={role} onChange={e => setRole(e.target.value)} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="employee">Employee</option>
             <option value="manager">Manager</option>
             <option value="admin">Admin</option>

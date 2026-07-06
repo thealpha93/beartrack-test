@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { updateTenantSettingsAction } from '@/app/actions/admin'
 
 const TIMEZONES = [
@@ -63,8 +64,6 @@ export function TenantSettingsForm({ tenant }) {
     }
   }
 
-  const inputClass = 'w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
-
   return (
     <form onSubmit={handleSubmit} className="space-y-5 max-w-lg">
 
@@ -75,19 +74,19 @@ export function TenantSettingsForm({ tenant }) {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Company name</label>
-        <input type="text" required value={name} onChange={e => setName(e.target.value)} className={inputClass} />
+        <Input type="text" required value={name} onChange={e => setName(e.target.value)} />
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Timezone</label>
-        <select value={timezone} onChange={e => setTimezone(e.target.value)} className={inputClass}>
+        <select value={timezone} onChange={e => setTimezone(e.target.value)} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
           {TIMEZONES.map(tz => <option key={tz} value={tz}>{tz}</option>)}
         </select>
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Fiscal year start</label>
-        <select value={fiscalYearStartMonth} onChange={e => setFiscalYearStartMonth(Number(e.target.value))} className={inputClass}>
+        <select value={fiscalYearStartMonth} onChange={e => setFiscalYearStartMonth(Number(e.target.value))} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
           {MONTHS.map((month, i) => (
             <option key={i + 1} value={i + 1}>{month}</option>
           ))}
@@ -121,12 +120,12 @@ export function TenantSettingsForm({ tenant }) {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Hours per workday</label>
-        <input type="number" required min="1" max="24" value={hoursPerWorkday} onChange={e => setHoursPerWorkday(e.target.value)} className={inputClass} />
+        <Input type="number" required min="1" max="24" value={hoursPerWorkday} onChange={e => setHoursPerWorkday(e.target.value)} />
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Min headcount threshold</label>
-        <input type="number" required min="0" value={minHeadcountThreshold} onChange={e => setMinHeadcountThreshold(e.target.value)} className={inputClass} />
+        <Input type="number" required min="0" value={minHeadcountThreshold} onChange={e => setMinHeadcountThreshold(e.target.value)} />
         <p className="text-xs text-gray-500 mt-1">Minimum number of employees who must be present on any given day.</p>
       </div>
 

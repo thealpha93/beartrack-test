@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { updateUserAction, deactivateUserAction, reactivateUserAction } from '@/app/actions/admin'
 
 export function UserEditForm({ user, activeUsers, pendingRequestCount }) {
@@ -58,19 +59,18 @@ export function UserEditForm({ user, activeUsers, pendingRequestCount }) {
     }
   }
 
-  const inputClass = 'w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
   const eligibleManagers = activeUsers.filter(u => u.role === 'manager' || u.role === 'admin')
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5 max-w-lg">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-        <input type="text" required value={name} onChange={e => setName(e.target.value)} className={inputClass} />
+        <Input type="text" required value={name} onChange={e => setName(e.target.value)} />
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-        <select value={role} onChange={e => setRole(e.target.value)} className={inputClass}>
+        <select value={role} onChange={e => setRole(e.target.value)} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
           <option value="employee">Employee</option>
           <option value="manager">Manager</option>
           <option value="admin">Admin</option>
@@ -80,7 +80,7 @@ export function UserEditForm({ user, activeUsers, pendingRequestCount }) {
       {role === 'employee' && (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Manager</label>
-          <select value={managerId} onChange={e => setManagerId(e.target.value)} className={inputClass}>
+          <select value={managerId} onChange={e => setManagerId(e.target.value)} className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="">— None —</option>
             {eligibleManagers.map(u => (
               <option key={u.id} value={u.id}>{u.name} ({u.role})</option>
@@ -91,7 +91,7 @@ export function UserEditForm({ user, activeUsers, pendingRequestCount }) {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Join date</label>
-        <input type="date" required value={joinDate} onChange={e => setJoinDate(e.target.value)} className={inputClass} />
+        <Input type="date" required value={joinDate} onChange={e => setJoinDate(e.target.value)} />
       </div>
 
       {user.is_active && pendingRequestCount > 0 && (

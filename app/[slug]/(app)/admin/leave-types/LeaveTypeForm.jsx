@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   createLeaveTypeAction, updateLeaveTypeAction,
   deactivateLeaveTypeAction, reactivateLeaveTypeAction,
@@ -79,8 +80,6 @@ export function LeaveTypeForm({ mode, leaveType, activeRequestCount = 0 }) {
     }
   }
 
-  const inputClass = 'w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
-
   return (
     <form onSubmit={handleSubmit} className="space-y-5 max-w-lg">
 
@@ -91,18 +90,18 @@ export function LeaveTypeForm({ mode, leaveType, activeRequestCount = 0 }) {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-        <input type="text" required value={name} onChange={e => setName(e.target.value)} className={inputClass} />
+        <Input type="text" required value={name} onChange={e => setName(e.target.value)} />
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Code</label>
-        <input
+        <Input
           type="text"
           required
           readOnly={mode === 'edit'}
           value={code}
           onChange={e => setCode(e.target.value.toUpperCase())}
-          className={`${inputClass} font-mono${mode === 'edit' ? ' bg-gray-50 text-gray-500' : ''}`}
+          className={`font-mono${mode === 'edit' ? ' bg-gray-50 text-gray-500' : ''}`}
         />
         {mode === 'edit' && (
           <p className="text-xs text-gray-500 mt-1">Code cannot be changed after creation.</p>
@@ -134,7 +133,7 @@ export function LeaveTypeForm({ mode, leaveType, activeRequestCount = 0 }) {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Entitlement (days/year)</label>
-        <input type="number" required min="0" step="0.5" value={entitlement} onChange={e => setEntitlement(e.target.value)} className={inputClass} />
+        <Input type="number" required min="0" step="0.5" value={entitlement} onChange={e => setEntitlement(e.target.value)} />
       </div>
 
       <div className="flex items-center gap-3">
@@ -165,7 +164,7 @@ export function LeaveTypeForm({ mode, leaveType, activeRequestCount = 0 }) {
       {allowCarryForward && (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Max carry forward days</label>
-          <input type="number" required min="0" value={carryForwardMaxDays} onChange={e => setCarryForwardMaxDays(e.target.value)} className={inputClass} />
+          <Input type="number" required min="0" value={carryForwardMaxDays} onChange={e => setCarryForwardMaxDays(e.target.value)} />
         </div>
       )}
 
