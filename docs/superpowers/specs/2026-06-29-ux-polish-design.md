@@ -1,6 +1,6 @@
 # UX Polish — Design Spec
 
-**Goal:** Fix six targeted UX gaps in the BearTracks frontend: shared utilities, wizard step labels, admin form grouping, input component consistency, admin empty states, and admin page headings.
+**Goal:** Fix seven targeted UX gaps in the BearTracks frontend: shared utilities, wizard step labels, admin form grouping, input component consistency, admin table component swap, admin empty states, and admin page headings.
 
 **Scope:** UI polish only — no backend changes, no new routes, no database changes. Mobile layout excluded.
 
@@ -14,6 +14,7 @@
 - No new npm dependencies
 - Follow existing shadcn/ui component patterns
 - `<select>` and `<textarea>` remain as plain HTML — only `<input>` elements are swapped to shadcn `<Input>`
+- Admin tables use the shadcn `Table` / `TableHeader` / `TableBody` / `TableRow` / `TableHead` / `TableCell` components from `components/ui/table.jsx`
 - No mobile layout changes
 
 ---
@@ -143,7 +144,33 @@ The `inputClass` constant is deleted from each file after the swap.
 
 ---
 
-## 5. Admin Empty States
+## 5. Admin Table Component Swap
+
+Replace plain HTML `<table>` / `<thead>` / `<tbody>` / `<tr>` / `<th>` / `<td>` with shadcn table components in the three admin list pages. Import from `@/components/ui/table`.
+
+**Files:**
+- `app/[slug]/(app)/admin/leave-types/page.js`
+- `app/[slug]/(app)/admin/users/page.js`
+- `app/[slug]/(app)/admin/holidays/HolidaysClient.jsx`
+
+**Mapping:**
+
+| HTML | shadcn |
+|---|---|
+| `<table>` | `<Table>` |
+| `<thead>` | `<TableHeader>` |
+| `<tbody>` | `<TableBody>` |
+| `<tr>` | `<TableRow>` |
+| `<th>` | `<TableHead>` |
+| `<td>` | `<TableCell>` |
+
+The outer `<div className="rounded-md border bg-white overflow-hidden">` wrapper is removed — `Table` renders its own `overflow-x-auto` container. The border and background are re-applied via `className` on `Table`: `className="rounded-md border bg-white"`.
+
+Existing row-level `className` props (e.g. `opacity-50` for inactive rows) are preserved on `<TableRow>`.
+
+---
+
+## 6. Admin Empty States
 
 Use `<EmptyState>` when the data array is empty. The table (including its `<thead>`) is not rendered when there is no data — only the empty state is shown.
 
@@ -178,7 +205,7 @@ No action button for holidays — the inline add form is already present on the 
 
 ---
 
-## 6. Admin Page Headings
+## 7. Admin Page Headings
 
 Add `<h1 className="text-2xl font-semibold mb-6">` at the top of content in these server component pages, above the form component:
 
