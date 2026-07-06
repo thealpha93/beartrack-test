@@ -67,6 +67,12 @@ export function TenantSettingsForm({ tenant }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5 max-w-lg">
+
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Organisation</p>
+        <hr className="border-gray-100 mt-1" />
+      </div>
+
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Company name</label>
         <input type="text" required value={name} onChange={e => setName(e.target.value)} className={inputClass} />
@@ -86,6 +92,11 @@ export function TenantSettingsForm({ tenant }) {
             <option key={i + 1} value={i + 1}>{month}</option>
           ))}
         </select>
+      </div>
+
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Working time</p>
+        <hr className="border-gray-100 mt-1" />
       </div>
 
       <div>

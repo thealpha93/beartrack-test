@@ -83,6 +83,12 @@ export function LeaveTypeForm({ mode, leaveType, activeRequestCount = 0 }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5 max-w-lg">
+
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Basics</p>
+        <hr className="border-gray-100 mt-1" />
+      </div>
+
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
         <input type="text" required value={name} onChange={e => setName(e.target.value)} className={inputClass} />
@@ -116,6 +122,11 @@ export function LeaveTypeForm({ mode, leaveType, activeRequestCount = 0 }) {
         </div>
       </div>
 
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Entitlement</p>
+        <hr className="border-gray-100 mt-1" />
+      </div>
+
       <div className="flex items-center gap-3">
         <input type="checkbox" id="paid" checked={paid} onChange={e => setPaid(e.target.checked)} className="h-4 w-4" />
         <label htmlFor="paid" className="text-sm font-medium text-gray-700">Paid leave</label>
@@ -129,6 +140,11 @@ export function LeaveTypeForm({ mode, leaveType, activeRequestCount = 0 }) {
       <div className="flex items-center gap-3">
         <input type="checkbox" id="prorate" checked={prorateOnJoin} onChange={e => setProrateOnJoin(e.target.checked)} className="h-4 w-4" />
         <label htmlFor="prorate" className="text-sm font-medium text-gray-700">Prorate entitlement on join</label>
+      </div>
+
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Request options</p>
+        <hr className="border-gray-100 mt-1" />
       </div>
 
       <div className="flex items-center gap-3">
