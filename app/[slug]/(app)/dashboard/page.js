@@ -7,6 +7,7 @@ import { getPublicHolidays } from '@/lib/dal/public-holidays.js'
 import { computeAvailableBalance } from '@/lib/policy-engine/index.js'
 import { deriveFiscalYear } from '@/lib/fiscal-year.js'
 import { getTenantById } from '@/lib/dal/tenants.js'
+import { formatDays } from '@/lib/utils/format.js'
 import Link from 'next/link'
 import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -70,8 +71,8 @@ export default async function DashboardPage({ params }) {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold">{balance.available.toFixed(1)}</p>
-              <p className="text-xs text-gray-500">{balance.used.toFixed(1)} used of {balance.total.toFixed(1)} days</p>
+              <p className="text-2xl font-bold">{formatDays(balance.available)}</p>
+              <p className="text-xs text-gray-500">{formatDays(balance.used)} used of {formatDays(balance.total)} days</p>
               <Progress
                 value={balance.total > 0 ? (balance.used / balance.total) * 100 : 0}
                 className="mt-2 h-1.5"
